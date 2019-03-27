@@ -1,30 +1,26 @@
 # -*- coding: utf-8 -*-
-import click
-import logging
-from pathlib import Path
-from dotenv import find_dotenv, load_dotenv
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 
-@click.command()
-@click.argument('input_filepath', type=click.Path(exists=True))
-@click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
-    """
-    logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
+class MakeDataset:
+    def __init__(self):
+        self.train = pd.read_csv('../data/raw/train.csv')
+        self.test = pd.read_csv('../data/raw/test.csv')
 
+    def prepare_data(self):
+        """
+        to-do
+        """
+        le = LabelEncoder().fit(self.train.species)
+        t_train = le.transform(self.train.species)
+        classes = le.classes_
+        x_train = self.train.drop(['species', 'id'], axis=1)
+        return classes, x_train, t_train
 
-if __name__ == '__main__':
-    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    logging.basicConfig(level=logging.INFO, format=log_fmt)
+    def print_data(self, x, t, scatter=True):
+        """
+        to-do
+        """
 
-    # not used in this stub but often useful for finding various files
-    project_dir = Path(__file__).resolve().parents[2]
-
-    # find .env automagically by walking up directories until it's found, then
-    # load up the .env entries as environment variables
-    load_dotenv(find_dotenv())
-
-    main()
