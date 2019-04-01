@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-from PyInstaller.utils.hooks import collect_submodules
 from sklearn.preprocessing import LabelEncoder
 
 
