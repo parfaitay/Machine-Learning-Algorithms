@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-from PyInstaller.utils.hooks import collect_submodules
 from sklearn.preprocessing import LabelEncoder
 
 
@@ -18,9 +17,7 @@ class MakeDataset:
         t_train = le.transform(self.train.species)
         classes = le.classes_
         x_train = self.train.drop(['species', 'id'], axis=1)
-        return classes, x_train, t_train
-
-        print("xtrain",x_train)
+        return classes, x_train, t_train,
 
     def print_data(self, x, t, scatter=True):
         """
