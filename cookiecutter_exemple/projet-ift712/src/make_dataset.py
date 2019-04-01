@@ -17,7 +17,7 @@ class MakeDataset:
         t_train = le.transform(self.train.species)
         classes = le.classes_
         x_train = self.train.drop(['species', 'id'], axis=1)
-        return classes, x_train, t_train
+        return classes, x_train, t_train,
 
     def print_data(self, x, t, scatter=True):
         """
