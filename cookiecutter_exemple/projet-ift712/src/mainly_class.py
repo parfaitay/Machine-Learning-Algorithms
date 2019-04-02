@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import sys
 import train_model as tm
 import make_dataset as md
@@ -38,15 +37,14 @@ def main():
     print("Generation des données d'entrainement...")
     
     generateur_donnees = md.MakeDataset()
-    [classes,x_train, t_train] = generateur_donnees.prepare_data()
+    classes, data, labels = generateur_donnees.prepare_data()
 
     print(" entrainement...")
-    #print(" classes...",classes)
+    # print(" classes...",classes)
     # On entraine le modèle
-    train_model= tm.trainModel(classifieur=type_classifieur)
 
-
-    train_model.entrainement(x_train, t_train,classes)
+    train_model = tm.trainModel(classifieur=type_classifieur)
+    train_model.entrainement(data, labels)
     
     err_train = 50
     err_test = 50
