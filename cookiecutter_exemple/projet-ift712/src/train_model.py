@@ -2,11 +2,12 @@
 
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 
 
-class classificateur:
-    def __init__(self, methode=1, lamb=0.2, sigma_square=1.06, b=1.0, c=0.1, d=1.0, M=2, noyau='rbf'):
+class trainModel:
+    def __init__(self, classifieur=1):
         """
         Algorithmes de classification lineaire
 
@@ -14,32 +15,28 @@ class classificateur:
         des poids w et w_0
 
         ``methode`` :   1 pour classification generative
-                        2 pour Perceptron
+                        2 pour k plus proches voisins
                         3 pour Perceptron sklearn
+                        4 pour arbre de decision
 
-        Classe effectuant de la segmentation de données 2D 2 classes à l'aide de la méthode à noyau.
 
-        lamb: coefficiant de régularisation L2
-        sigma_square: paramètre du noyau rbf
-        b, d: paramètres du noyau sigmoidal
-        M,c: paramètres du noyau polynomial
-        noyau: rbf, lineaire, polynomial ou sigmoidal
+
         """
-        self.methode = methode
-        self.lamb = lamb
-        self.a = None
-        self.sigma_square = sigma_square
-        self.M = M
-        self.c = c
-        self.b = b
-        self.d = d
-        self.noyau = noyau
-        self.x_train = None
+        self.classifieur = classifieur
+        
 
-    def entrainement(self, x_train, t_train):
+    def entrainement(self, x_train, t_train, classes):
         """
         """
+        if self.classifieur == 1:
+            clf = LinearDiscriminantAnalysis()
+            clf.fit(x_train, t_train)
+            LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
+              solver='svd', store_covariance=False, tol=0.0001)
+            print(clf.predict(x_train))
+            print(classes)
 
+             
 
     def prediction(self, x):
         """
@@ -50,8 +47,8 @@ class classificateur:
         """
         Retourne la différence au carré entre
         la cible ``t`` et la prédiction ``prediction``.
+        on calcule lerreur de la prediction
         """
-        # AJOUTER CODE ICI
-        # on calcule lerreur de la prediction
+ 
         err = (t - prediction) ** 2
         return err

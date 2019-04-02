@@ -2,8 +2,8 @@
 
 import numpy as np
 import sys
-import src.train_model as tm
-import src.make_dataset as md
+import train_model as tm
+import make_dataset as md
 
 #################################################
 # Execution en tant que script dans un terminal
@@ -16,7 +16,7 @@ import src.make_dataset as md
 
 def main():
 
-    if len(sys.argv) < 7:
+    if len(sys.argv) > 7:
         usage = "\n Usage: python classifieur.py method nb_train nb_test lambda bruit corruption don_ab\
         \n\n\t method : 1 => Classification generative\
         \n\t method : 2 => Perceptron + SDG \n\t method : 3 => Perceptron + SDG [sklearn]\
@@ -28,14 +28,36 @@ def main():
         print(usage)
         return
 
-    method = int(sys.argv[1])
-    nb_train = int(sys.argv[2])
-    nb_test = int(sys.argv[3])
-    lamb = float(sys.argv[4])
-    bruit = float(sys.argv[5])
-    donnees_aberrantes = bool(int(sys.argv[6]))
+    type_classifieur = int(sys.argv[1])
+    #nb_train = int(sys.argv[2])
+    #nb_test = int(sys.argv[3])
+    #lamb = float(sys.argv[4])
+    #bruit = float(sys.argv[5])
+    #donnees_aberrantes = bool(int(sys.argv[6]))
 
     print("Generation des données d'entrainement...")
+    
+    generateur_donnees = md.MakeDataset()
+    [classes,x_train, t_train] = generateur_donnees.prepare_data()
+
+    print(" entrainement...")
+    #print(" classes...",classes)
+    # On entraine le modèle
+    train_model= tm.trainModel(classifieur=type_classifieur)
+
+
+    train_model.entrainement(x_train, t_train,classes)
+    
+    err_train = 50
+    err_test = 50
+
+    print('Erreur train = ', err_train, '%')
+    print('Erreur test = ', err_test, '%')
+    #analyse_erreur(err_train, err_test)
+
+    # Affichage
+    #mp.affichage(x_test, t_test)
+
 
 
 if __name__ == "__main__":
