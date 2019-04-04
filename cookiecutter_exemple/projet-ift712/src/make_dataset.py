@@ -14,10 +14,10 @@ class MakeDataset:
         to-do
         """
         le = LabelEncoder().fit(self.train.species)
-        t_train = le.transform(self.train.species)
+        labels = le.transform(self.train.species)
         classes = le.classes_
-        x_train = self.train.drop(['species', 'id'], axis=1)
-        return classes, x_train, t_train,
+        data = self.train.drop(['species', 'id'], axis=1)
+        return classes, data, labels
     
     
 
