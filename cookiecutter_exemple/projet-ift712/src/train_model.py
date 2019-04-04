@@ -2,6 +2,8 @@
 
 import numpy as np
 import pandas as pd
+from sklearn import svm
+from sklearn.metrics import log_loss
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV, RandomizedSearchCV
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
@@ -66,7 +68,7 @@ class trainModel:
 
         if self.classifieur == 2:
             # construct the set of hyperparameters to tune
-            hparams = {"n_neighbors": np.arange(14, 31, 1), "metric": ["euclidean", "cityblock"]}
+            hparams = {"n_neighbors": np.arange(1, 31, 1), "metric": ["euclidean", "cityblock"]}
             # tune the hyperparameters via a cross-validated grid search
             print("tuning hyperparameters via grid search")
             clf = KNeighborsClassifier()
@@ -76,11 +78,16 @@ class trainModel:
             #     t_train = kt_train[i]
             #     x_test = kx_test[i]
             #     t_test = kt_test[i]
-            grid = GridSearchCV(clf, hparams, cv=3);
+            grid = GridSearchCV(clf, hparams, cv=3)
             grid.fit(trainData, trainLabels)
             accuracy = grid.score(testData, testLabels)
-            print("grid search accuracy: {:.2f}%".format(accuracy * 100))
-            print("grid search best parameters: {}".format(grid.best_params_))
+            # print("len1",len(testData))
+            # print("len2",len(testLabels))
+            # testpred = grid.predict_proba(testData)
+            # ll = log_loss(testLabels, testpred)
+            # print("log loss:", ll)
+            print("KNN grid search accuracy: {:.2f}%".format(accuracy * 100))
+            print("KNN grid search best parameters: {}".format(grid.best_params_))
             test_predictions = grid.predict_proba(test)
             # Format DataFrame
             submission = pd.DataFrame(test_predictions, columns=classes)
@@ -92,11 +99,32 @@ class trainModel:
             submission.tail()
 
             #randomized search
-            grid = RandomizedSearchCV(clf, hparams, cv=5)
-            grid.fit(trainData, trainLabels)
-            accuracy = grid.score(testData, testLabels)
-            print("randomized search accuracy: {:.2f}%".format(accuracy * 100))
-            print("randomized search best parameters: {}".format(grid.best_params_))
+            # grid = RandomizedSearchCV(clf, hparams, cv=5)
+            # grid.fit(trainData, trainLabels)
+            # accuracy = grid.score(testData, testLabels)
+            # print("randomized search accuracy: {:.2f}%".format(accuracy * 100))
+            # print("randomized search best parameters: {}".format(grid.best_params_))
+
+        if self.classifieur == 3:
+            Cs = [0.01, 0.1, 1, 10, 100]
+            gammas = [0.001, 0.01, 0.1, 1, 10, 100]
+            hparams = {'C': Cs, 'gamma': gammas}
+            print("tuning SVM(kernel=rbf) hyperparameters via grid search")
+            clf = svm.SVC(kernel='rbf', probability=True)
+            grid_search = GridSearchCV(clf, hparams, cv=4)
+            grid_search.fit(trainData, trainLabels)
+            accuracy = grid_search.score(testData, testLabels)
+            print("SVM grid search accuracy: {:.2f}%".format(accuracy * 100))
+            print("SVM grid search best parameters: {}".format(grid_search.best_params_))
+            test_predictions = grid_search.predict_proba(test)
+            # Format DataFrame
+            submission = pd.DataFrame(test_predictions, columns=classes)
+            submission.insert(0, 'id', test_ids)
+            submission.reset_index()
+
+            # Export Submission
+            submission.to_csv('submission.csv', index=False)
+            submission.tail()
 
 
 
