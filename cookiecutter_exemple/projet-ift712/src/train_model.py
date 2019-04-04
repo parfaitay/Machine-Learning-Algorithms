@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV, RandomizedSearchCV
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
 
 
 class trainModel:
@@ -101,6 +102,32 @@ class trainModel:
             accuracy = grid.score(testData, testLabels)
             print("randomized search accuracy: {:.2f}%".format(accuracy * 100))
             print("randomized search best parameters: {}".format(grid.best_params_))
+
+        if self.classifieur == 3:
+            #penalite 
+            #
+            #des valeurs plus petites indiquent une régularisation plus forte pour le cas de C
+            
+            Logistic_Regression_params= {
+                'penalty': ('l1', 'l2', ), 'C': [0.001, 0.01, 0.1, 1, 10,11,20, 100, ], }
+            clf=LogisticRegression()
+
+            param_search= GridSearchCV(clf, param_grid=Logistic_Regression_params,cv=10)
+            param_search.fit(trainData,trainLabels)
+            accuracy = param_search.score(testData, testLabels)
+            print("regression logistic search accuracy: {:.2f}%".format(accuracy * 100))
+            print("regression logistic search best parameters: {}".format(param_search.best_params_))
+
+            test_predictions = param_search.predict_proba(test)
+            # Format DataFrame
+            submission = pd.DataFrame(test_predictions, columns=classes)
+            submission.insert(0, 'id', test_ids)
+            submission.reset_index()
+
+            # Export Submission
+            submission.to_csv('submissionteny2.csv', index=False)
+            submission.tail()
+
 
 
 
