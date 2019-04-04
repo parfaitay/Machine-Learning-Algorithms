@@ -34,7 +34,7 @@ class trainModel:
         sss = StratifiedShuffleSplit(10, test_size=0.2, random_state=0)
         sss.get_n_splits(data, labels)
         for train_index, test_index in sss.split(data, labels):
-            print("TRAIN:", train_index, "TEST:", test_index)
+            #print("TRAIN:", train_index, "TEST:", test_index)
             x_train, x_test = data[train_index], data[test_index]
             t_train, t_test = labels[train_index], labels[test_index]
             kx_train.append(x_train)
@@ -56,11 +56,15 @@ class trainModel:
         trainData, testData, trainLabels, testLabels = train_test_split(data, labels, test_size=0.2, random_state=0)
 
         if self.classifieur == 1:
-            clf = LinearDiscriminantAnalysis()
-            clf.fit(data, labels)
-            LinearDiscriminantAnalysis(n_components=None, priors=None, shrinkage=None,
-              solver='svd', store_covariance=False, tol=0.0001)
-            print(clf.predict(data))
+            
+            clf = LinearDiscriminantAnalysis(n_components=2)
+            param ={}
+            grid_lda= GridSearchCV(clf,param,cv=5)
+           
+            grid_lda.fit(trainData, trainLabels)
+            accuracy = grid_lda.score(testData, testLabels)
+            print("gridlda search accuracy: {:.2f}%".format(accuracy * 100))
+            print("gridlda search best parameters: {}".format(grid_lda.best_params_))
             # print(classes)
 
         if self.classifieur == 2:
