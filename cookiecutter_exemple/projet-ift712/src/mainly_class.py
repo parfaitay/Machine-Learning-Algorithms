@@ -3,6 +3,7 @@
 import sys
 import train_model as tm
 import make_dataset as md
+import visualize as vz
 
 #################################################
 # Execution en tant que script dans un terminal
@@ -37,14 +38,14 @@ def main():
     print("Generation des données d'entrainement...")
     
     generateur_donnees = md.MakeDataset()
-    classes, data, labels = generateur_donnees.prepare_data()
+    classes, data, labels, test, test_ids = generateur_donnees.prepare_data()
 
     print(" entrainement...")
     # print(" classes...",classes)
     # On entraine le modèle
 
     train_model = tm.trainModel(classifieur=type_classifieur)
-    train_model.entrainement(data, labels)
+    train_model.entrainement(data, labels, test, test_ids, classes)
     
     err_train = 50
     err_test = 50
@@ -54,7 +55,8 @@ def main():
     #analyse_erreur(err_train, err_test)
 
     # Affichage
-    #mp.affichage(x_test, t_test)
+    # visio = vz.Visualize()
+    # visio.print_histogram()
 
 
 

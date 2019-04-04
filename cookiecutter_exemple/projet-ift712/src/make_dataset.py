@@ -2,6 +2,7 @@
 
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
 
 
 class MakeDataset:
@@ -17,7 +18,12 @@ class MakeDataset:
         labels = le.transform(self.train.species)
         classes = le.classes_
         data = self.train.drop(['species', 'id'], axis=1)
-        return classes, data, labels
+        test_ids = self.test.id
+        test = self.test.drop(['id'], axis=1)
+        scaler = StandardScaler()
+        data = scaler.fit_transform(data)
+        test = scaler.transform(test)
+        return classes, data, labels, test, test_ids
     
     
 
@@ -25,4 +31,5 @@ class MakeDataset:
         """
         to-do
         """
+
 
