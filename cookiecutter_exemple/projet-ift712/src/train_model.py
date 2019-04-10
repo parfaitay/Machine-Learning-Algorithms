@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, Gr
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Perceptron
+from sklearn import tree
 
 
 class trainModel:
@@ -127,6 +129,38 @@ class trainModel:
             # Export Submission
             submission.to_csv('submissionteny2.csv', index=False)
             submission.tail()
+
+        if self.classifieur == 4:
+
+            Perceptron_params= {
+                'penalty': ('l1', 'l2', ),
+                'alpha': [0.0001,0.1, 0.01, ],
+                'n_iter': [1, 2, 5, 10, 100, 500, ], }
+
+            clf=Perceptron()
+
+            perceptron_search= GridSearchCV(clf, param_grid=Perceptron_params,cv=5)
+            perceptron_search.fit(trainData,trainLabels)
+            perceptron_accuracy = perceptron_search.score(testData, testLabels)
+            print("perceptron  search accuracy: {:.2f}%".format(perceptron_accuracy * 100))
+            print("perceptron logistic search best parameters: {}".format(perceptron_search.best_params_))
+
+
+        if self.classifieur == 5:
+    
+            DecisionTree_params=  {
+                'max_depth': (5, 10, 20, 50, 100, 500, ),
+                'max_features': range(
+                    len(trainData[0]) - 5, len(trainData[0])), }
+
+            clf= tree.DecisionTreeClassifier()
+
+            DecisionTree_search= GridSearchCV(clf, param_grid=DecisionTree_params,cv=5)
+            DecisionTree_search.fit(trainData,trainLabels)
+            DecisionTree_accuracy = DecisionTree_search.score(testData, testLabels)
+            print("DecisionTree  search accuracy: {:.2f}%".format(DecisionTree_accuracy * 100))
+            print("DecisionTree  search best parameters: {}".format(DecisionTree_search.best_params_))
+
 
 
 

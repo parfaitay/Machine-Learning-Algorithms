@@ -55,8 +55,8 @@ def main():
     #analyse_erreur(err_train, err_test)
 
     # Affichage
-    # visio = vz.Visualize()
-    # visio.print_histogram()
+    visio = vz.Visualize()
+    visio.print_histogram()
 
 
 
