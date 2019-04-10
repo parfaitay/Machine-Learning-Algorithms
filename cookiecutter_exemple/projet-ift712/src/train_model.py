@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 from sklearn import svm
-from sklearn.decomposition import PCA
+from sklearn.metrics import log_loss
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV, RandomizedSearchCV
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
@@ -56,16 +56,7 @@ class trainModel:
 
         # resultat du kfold cross validation
         # kx_train, kt_train, kx_test, kt_test = self.KFoldCrossValidation(data, labels)
-        pca = PCA(svd_solver='full')
-        # Then we fit pca on our training set and we apply to the same entire set
-        data_pca = pca.fit_transform(data)
-        test_pca = pca.fit_transform(test)
-
-        # Now we can compare the dimensions of the training set before and after applying PCA and see if we
-        # managed to reduce the number of features.
-        print("Number of descriptors before PCA: " + '{:1.0f}'.format(data.shape[1]) + '/' '{:1.0f}'.format(test.shape[1]))
-        print("Number of descriptors after PCA: " + '{:1.0f}'.format(data_pca.shape[1]) + '/' '{:1.0f}'.format(test_pca.shape[1]))
-        trainData, testData, trainLabels, testLabels = train_test_split(data_pca, labels, test_size=0.2, random_state=0)
+        trainData, testData, trainLabels, testLabels = train_test_split(data, labels, test_size=0.2, random_state=0)
 
         if self.classifieur == 1:
             clf = LinearDiscriminantAnalysis()
@@ -76,13 +67,6 @@ class trainModel:
             # print(classes)
 
         if self.classifieur == 2:
-            #apply PCA
-            # # Make an instance of the Model
-            # pca = PCA(.90)
-            # pca.fit(trainData)
-            # trainData = pca.transform(trainData)
-            # testData = pca.transform(testData)
-
             # construct the set of hyperparameters to tune
             hparams = {"n_neighbors": np.arange(1, 31, 1), "metric": ["euclidean", "cityblock"]}
             # tune the hyperparameters via a cross-validated grid search
@@ -104,7 +88,7 @@ class trainModel:
             # print("log loss:", ll)
             print("KNN grid search accuracy: {:.2f}%".format(accuracy * 100))
             print("KNN grid search best parameters: {}".format(grid.best_params_))
-            test_predictions = grid.predict_proba(test_pca)
+            test_predictions = grid.predict_proba(test)
             # Format DataFrame
             submission = pd.DataFrame(test_predictions, columns=classes)
             submission.insert(0, 'id', test_ids)
