@@ -8,6 +8,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import Perceptron
 from sklearn import tree
+import graphviz
 
 
 class trainModel:
@@ -149,14 +150,18 @@ class trainModel:
         if self.classifieur == 5:
     
             DecisionTree_params=  {
-                'max_depth': (5, 10, 20, 50, 100, 500, ),
+                'max_depth': (5, 10, 20, 50, 100, 500,999 ),
                 'max_features': range(
-                    len(trainData[0]) - 5, len(trainData[0])), }
+                    len(trainData[0]) - 15, len(trainData[0])), }
 
             clf= tree.DecisionTreeClassifier()
 
             DecisionTree_search= GridSearchCV(clf, param_grid=DecisionTree_params,cv=5)
             DecisionTree_search.fit(trainData,trainLabels)
+
+           # dot_data = tree.export_graphviz(clf.fit(trainData,trainLabels), out_file=None) 
+           # graph = graphviz.Source(dot_data) 
+            #graph.render("leaf")
             DecisionTree_accuracy = DecisionTree_search.score(testData, testLabels)
             print("DecisionTree  search accuracy: {:.2f}%".format(DecisionTree_accuracy * 100))
             print("DecisionTree  search best parameters: {}".format(DecisionTree_search.best_params_))

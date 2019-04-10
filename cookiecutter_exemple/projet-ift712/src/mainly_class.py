@@ -39,7 +39,7 @@ def main():
     
     generateur_donnees = md.MakeDataset()
     classes, data, labels, test, test_ids = generateur_donnees.prepare_data()
-
+    print(labels)
     print(" entrainement...")
     # print(" classes...",classes)
     # On entraine le modèle
@@ -55,9 +55,10 @@ def main():
     #analyse_erreur(err_train, err_test)
 
     # Affichage
-    visio = vz.Visualize()
-    visio.print_histogram()
-
+    #visio = vz.Visualize()
+    #visio.print_histogram()
+    
+    
 
 
 if __name__ == "__main__":
