@@ -3,9 +3,11 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.svm import SVC
 from sklearn.linear_model import Perceptron
 from sklearn import tree
 import matplotlib.pyplot as plt
@@ -15,7 +17,7 @@ from sklearn.svm import SVC
 class trainModel:
     def __init__(self, classifieur=1):
         """
-        Classification algorithm
+        Classification algorithms
         ``classifier`` :   1 for classification generative
                         2 for KNN
                         3 for SVM with three kernel polynomial, sigmoidal and rbf
@@ -62,24 +64,26 @@ class trainModel:
         trainData, testData, trainLabels, testLabels = train_test_split(data, labels, test_size=0.3, random_state=0)
 
         if self.classifieur == 1:
-            
-            clf = LinearDiscriminantAnalysis(n_components=2)
-            param ={}
-            grid_lda= GridSearchCV(clf,param,cv=5)
-           
-            grid_lda.fit(trainData, trainLabels)
-            accuracy = grid_lda.score(testData, testLabels)
-            print("gridlda search accuracy: {:.2f}%".format(accuracy * 100))
-            print("gridlda search best parameters: {}".format(grid_lda.best_params_))
-            # print(classes)
 
+            svc_sigmoid=SVC(probability=True, kernel='sigmoid',gamma='auto')
+            AdaBoost_params = {
+                    'n_estimators': [50, 100],
+                    'learning_rate' : [0.01,0.05,0.1,0.3,1],
+                             }
+            
+            AdaBoost_search = GridSearchCV(AdaBoostClassifier(algorithm='SAMME', base_estimator=svc_sigmoid),
+                     param_grid = AdaBoost_params, cv=3)
+                        
+            AdaBoost_search.fit(trainData, trainLabels)
+                
+
+            AdaBoost_accuracy = AdaBoost_search.score(testData, testLabels)
+            print("AdaBoost_search   accuracy: {:.2f}%".format(AdaBoost_accuracy * 100))
+            print("AdaBoost_search search best parameters: {}".format(AdaBoost_search.best_params_))
+        
+                
         if self.classifieur == 2:
-            #apply PCA
-            # # Make an instance of the Model
-            # pca = PCA(.90)
-            # pca.fit(trainData)
-            # trainData = pca.transform(trainData)
-            # testData = pca.transform(testData)
+      
 
             # construct the set of hyperparameters to tune
             k_range = np.arange(2, 31, 1)
@@ -246,28 +250,33 @@ class trainModel:
             DecisionTree_search= GridSearchCV(clf, param_grid=DecisionTree_params,cv=5)
             DecisionTree_search.fit(trainData,trainLabels)
 
-           # dot_data = tree.export_graphviz(clf.fit(trainData,trainLabels), out_file=None) 
-           # graph = graphviz.Source(dot_data) 
-            #graph.render("leaf")
+            
+
+
+           
             DecisionTree_accuracy = DecisionTree_search.score(testData, testLabels)
+
+            for  result in DecisionTree_search.cv_results_ :
+                print(" parametre  "+  result['grid_mean_scores'])
+            #plt.plot(,grid_mean_scores)
+
             print("DecisionTree  search accuracy: {:.2f}%".format(DecisionTree_accuracy * 100))
             print("DecisionTree  search best parameters: {}".format(DecisionTree_search.best_params_))
 
 
+        if self.classifieur == 6:
+        
+            RandomForest_params= {
+                'max_depth': (5, 10, 20,50, 100, 500,999 ),
+                'n_estimators': (10,50, 100, ),
+                'max_features': range(
+                    len(trainData[0]) - 15 , len(trainData[0])), }
 
+            clf= RandomForestClassifier()
+        
+            RandomForest_search= GridSearchCV(clf, param_grid=RandomForest_params,cv=5)
+            RandomForest_search.fit(trainData,trainLabels)
+            RandomForest_accuracy = RandomForest_search.score(testData, testLabels)
+            print("perceptron  search accuracy: {:.2f}%".format(RandomForest_accuracy * 100))
+            print("perceptron logistic search best parameters: {}".format(RandomForest_search.best_params_))
 
-
-    def prediction(self, x):
-        """
-        """
-        return 0
-
-    def erreur(self, t, prediction):
-        """
-        Retourne la différence au carré entre
-        la cible ``t`` et la prédiction ``prediction``.
-        on calcule lerreur de la prediction
-        """
- 
-        err = (t - prediction) ** 2
-        return err
