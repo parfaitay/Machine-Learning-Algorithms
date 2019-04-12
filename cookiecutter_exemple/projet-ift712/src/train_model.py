@@ -5,9 +5,11 @@ import pandas as pd
 from sklearn import svm
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV, RandomizedSearchCV
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.svm import SVC
 from sklearn.linear_model import Perceptron
 from sklearn import tree
 import graphviz
@@ -60,7 +62,7 @@ class trainModel:
 
         # resultat du kfold cross validation
         # kx_train, kt_train, kx_test, kt_test = self.KFoldCrossValidation(data, labels)
-        pca = PCA(svd_solver='full')
+        pca = PCA( n_components=44, svd_solver='full')
         # Then we fit pca on our training set and we apply to the same entire set
         data_pca = pca.fit_transform(data)
         test_pca = pca.fit_transform(test)
@@ -72,17 +74,42 @@ class trainModel:
         trainData, testData, trainLabels, testLabels = train_test_split(data_pca, labels, test_size=0.2, random_state=0)
 
         if self.classifieur == 1:
-            
-            clf = LinearDiscriminantAnalysis(n_components=2)
-            param ={}
-            grid_lda= GridSearchCV(clf,param,cv=5)
-           
-            grid_lda.fit(trainData, trainLabels)
-            accuracy = grid_lda.score(testData, testLabels)
-            print("gridlda search accuracy: {:.2f}%".format(accuracy * 100))
-            print("gridlda search best parameters: {}".format(grid_lda.best_params_))
-            # print(classes)
 
+            svc_sigmoid=SVC(probability=True, kernel='sigmoid',gamma='auto')
+            #AdaBoost_params= {
+             #   'base_estimator': ('rbf', 'linear','sigmoid' ),
+              #  'n_estimators': [ 10,50, 100, ], }
+
+            # clf = AdaBoostClassifier(algorithm='SAMME', base_estimator=svc_sigmoid,n_estim)
+            # AdaBoost_search= GridSearchCV(clf,param_grid=AdaBoost_params,cv=5)
+           
+            # AdaBoost_search.fit(trainData, trainLabels)
+            # AdaBoost_search_accuracy = AdaBoost_search.score(testData, testLabels)
+            # print("gridlda search accuracy: {:.2f}%".format(AdaBoost_search_accuracy * 100))
+            # print("gridlda search best parameters: {}".format(AdaBoost_search.best_params_))
+
+            param_dist = {
+                    'n_estimators': [50, 100],
+                    'learning_rate' : [0.01,0.05,0.1,0.3,1],
+                    #'base_estimator' : {'linear', 'rbf', 'exponential'}
+                    
+                            }
+            
+            pre_gs_inst = GridSearchCV(AdaBoostClassifier(algorithm='SAMME', base_estimator=svc_sigmoid),
+                     param_grid = param_dist,
+                         cv=3)
+                         
+          
+            pre_gs_inst.fit(trainData, trainLabels)
+                #Voir les meilleurs paramètres:
+
+            pre_gs_inst_accuracy = pre_gs_inst.score(testData, testLabels)
+            print("perceptron  search accuracy: {:.2f}%".format(pre_gs_inst_accuracy * 100))
+            print("randomized search best parameters: {}".format(pre_gs_inst.best_params_))
+            #print("valeur meilleure"+pre_gs_inst.best_params_)
+
+            
+            
         if self.classifieur == 2:
             #apply PCA
             # # Make an instance of the Model
@@ -203,14 +230,41 @@ class trainModel:
             DecisionTree_search= GridSearchCV(clf, param_grid=DecisionTree_params,cv=5)
             DecisionTree_search.fit(trainData,trainLabels)
 
-           # dot_data = tree.export_graphviz(clf.fit(trainData,trainLabels), out_file=None) 
-           # graph = graphviz.Source(dot_data) 
-            #graph.render("leaf")
+            
+
+
+           
             DecisionTree_accuracy = DecisionTree_search.score(testData, testLabels)
+
+            for  result in DecisionTree_search.cv_results_ :
+                print(" parametre  "+  result['grid_mean_scores'])
+            #plt.plot(,grid_mean_scores)
+
             print("DecisionTree  search accuracy: {:.2f}%".format(DecisionTree_accuracy * 100))
             print("DecisionTree  search best parameters: {}".format(DecisionTree_search.best_params_))
 
 
+        if self.classifieur == 6:
+        
+            RandomForest_params= {
+                'max_depth': (5, 10, 20,50, 100, 500,999 ),
+                'n_estimators': (10,50, 100, ),
+                'max_features': range(
+                    len(trainData[0]) - 15 , len(trainData[0])), }
+
+            clf= RandomForestClassifier()
+        
+            RandomForest_search= GridSearchCV(clf, param_grid=RandomForest_params,cv=5)
+            RandomForest_search.fit(trainData,trainLabels)
+            RandomForest_accuracy = RandomForest_search.score(testData, testLabels)
+            print("perceptron  search accuracy: {:.2f}%".format(RandomForest_accuracy * 100))
+            print("perceptron logistic search best parameters: {}".format(RandomForest_search.best_params_))
+
+
+         
+            
+
+      
 
 
 

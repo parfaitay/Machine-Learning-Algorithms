@@ -11,9 +11,7 @@ class MakeDataset:
         self.test = pd.read_csv('../data/test.csv')
 
     def prepare_data(self):
-        """
-        to-do
-        """
+       
         le = LabelEncoder().fit(self.train.species)
         labels = le.transform(self.train.species)
         classes = le.classes_
@@ -24,6 +22,9 @@ class MakeDataset:
         data = scaler.fit_transform(data)
         test = scaler.transform(test)
         return classes, data, labels, test, test_ids
+
+
+        print("les entetes",data.heads())
 
 
     
