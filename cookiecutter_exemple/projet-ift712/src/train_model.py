@@ -59,7 +59,7 @@ class trainModel:
 
         # Now we can compare the dimensions of the training set before and after applying PCA and see if we
         # managed to reduce the number of features.
-        trainData, testData, trainLabels, testLabels = train_test_split(data, labels, test_size=0.2, random_state=0)
+        trainData, testData, trainLabels, testLabels = train_test_split(data, labels, test_size=0.3, random_state=0)
 
         if self.classifieur == 1:
             
@@ -82,7 +82,7 @@ class trainModel:
             # testData = pca.transform(testData)
 
             # construct the set of hyperparameters to tune
-            k_range = np.arange(1, 31, 1)
+            k_range = np.arange(2, 31, 1)
             hparams = {"n_neighbors": k_range, "metric": ["euclidean", "cityblock"]}
             # tune the hyperparameters via a cross-validated grid search
             print("tuning hyperparameters via grid search")
@@ -93,7 +93,7 @@ class trainModel:
             #     t_train = kt_train[i]
             #     x_test = kx_test[i]
             #     t_test = kt_test[i]
-            grid = GridSearchCV(clf, hparams, cv=4, scoring='accuracy')
+            grid = GridSearchCV(clf, hparams, cv=3, scoring='accuracy')
             grid.fit(trainData, trainLabels)
             accuracy = grid.score(testData, testLabels)
             # print("len1",len(testData))
@@ -104,26 +104,26 @@ class trainModel:
             print("KNN grid search accuracy: {:.2f}%".format(accuracy * 100))
             print("KNN grid search best parameters: {}".format(grid.best_params_))
 
-            print(grid.cv_results_.keys())
-            # create a list of the mean scores only
-            # list comprehension to loop through grid.grid_scores
-            grid_mean_scores = [result for result in grid.cv_results_['mean_test_score']]
-            # print(grid_mean_scores)
-            # plot the results
-            plt.plot(k_range, grid_mean_scores)
-            plt.xlabel('Value of K for KNN')
-            plt.ylabel('Cross-Validated Accuracy')
+            # print(grid.cv_results_.keys())
+            # # create a list of the mean scores only
+            # # list comprehension to loop through grid.grid_scores
+            # grid_mean_scores = [result for result in grid.cv_results_['mean_test_score']]
+            # # print(grid_mean_scores)
+            # # plot the results
+            # plt.plot(k_range, grid_mean_scores)
+            # plt.xlabel('Value of K for KNN')
+            # plt.ylabel('Cross-Validated Accuracy')
 
-            # kaggle
-            test_predictions = grid.predict_proba(test)
-            # Format DataFrame
-            submission = pd.DataFrame(test_predictions, columns=classes)
-            submission.insert(0, 'id', test_ids)
-            submission.reset_index()
-
-            # Export Submission
-            submission.to_csv('submission.csv', index=False)
-            submission.tail()
+            # # kaggle
+            # test_predictions = grid.predict_proba(test)
+            # # Format DataFrame
+            # submission = pd.DataFrame(test_predictions, columns=classes)
+            # submission.insert(0, 'id', test_ids)
+            # submission.reset_index()
+            #
+            # # Export Submission
+            # submission.to_csv('submission.csv', index=False)
+            # submission.tail()
 
             #randomized search
             # grid = RandomizedSearchCV(clf, hparams, cv=5)
@@ -169,7 +169,7 @@ class trainModel:
 
                 clf = GridSearchCV(SVC(C=1), tuned_parameters, cv=5,
                                    scoring='%s_macro' % score)
-                clf.fit(trainData, trainLabels)
+                clf.fit(data, labels)
 
                 print("Best parameters set found on development set:")
                 print()

@@ -30,7 +30,6 @@ def main():
 
     classifier_type = int(sys.argv[1])
     normalize = int(sys.argv[2])
-    pca = 0
     pca = int(sys.argv[3])
     vis = float(sys.argv[4])
     #bruit = float(sys.argv[5])
@@ -44,9 +43,9 @@ def main():
         print("Normalizing Dataset...")
         data = generateur_donnees.normalizer(data)
 
-    if pca != 0:
+    if pca == 1:
         print("Applying PCA on dataset...")
-        data = generateur_donnees.apply_pca(data, pca)
+        data = generateur_donnees.apply_pca(data)
 
     # Visualizing Data
     if vis == 1:

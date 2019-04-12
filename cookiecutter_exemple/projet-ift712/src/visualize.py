@@ -34,7 +34,16 @@ class Visualize:
         pl.suptitle("Histogram for each numeric input variable")
         plt.show()
 
+    def scatter_matrix(self, data):
+        feature_names = ['shape1', 'shape2', 'shape3', 'shape4', 'shape5', 'shape6', 'shape7', 'shape8', 'shape9']
+        X = data[feature_names]
+        y = data['species']
+        cmap = cm.get_cmap('gnuplot')
+        scatter = pd.plotting.scatter_matrix(X, marker='o', s=40, hist_kwds={'bins': 15}, figsize=(30, 40), cmap=cmap)
+        plt.suptitle('Scatter-matrix for each input variable')
+
     def show_correlation(self, traindf):
+
         md = m.MakeDataset()
         # First we find the sets of margin, shape and texture columns
         margin_cols = [col for col in traindf.columns if 'margin' in col]

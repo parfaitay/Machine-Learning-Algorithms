@@ -37,11 +37,11 @@ class MakeDataset:
     
     
 
-    def apply_pca(self, data, n_comp):
+    def apply_pca(self, data):
         """
         Perform the principal analysis component PCA on data given a number of components to keep
         """
-        pca = PCA(n_components=n_comp, svd_solver='full')
+        pca = PCA(n_components=0.90, svd_solver='full')
         # Then we fit pca on our training set and we apply to the same entire set
         data_pca = pca.fit_transform(data)
         return data_pca
