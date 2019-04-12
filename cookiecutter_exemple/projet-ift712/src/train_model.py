@@ -2,9 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from sklearn import svm
-from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV, RandomizedSearchCV
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -12,21 +10,18 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import Perceptron
 from sklearn import tree
-import graphviz
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
 
 
 class trainModel:
     def __init__(self, classifieur=1):
         """
-        Algorithmes de classification lineaire
-
-        L'argument ``lamb`` est une constante pour régulariser la magnitude
-        des poids w et w_0
-
-        ``methode`` :   1 pour classification generative
-                        2 pour k plus proches voisins
-                        3 pour Perceptron sklearn
-                        4 pour arbre de decision
+        Classification algorithm
+        ``classifier`` :   1 for classification generative
+                        2 for KNN
+                        3 for SVM with three kernel polynomial, sigmoidal and rbf
+                        4 for randomforest
 
 
 
@@ -62,16 +57,11 @@ class trainModel:
 
         # resultat du kfold cross validation
         # kx_train, kt_train, kx_test, kt_test = self.KFoldCrossValidation(data, labels)
-        pca = PCA( n_components=44, svd_solver='full')
-        # Then we fit pca on our training set and we apply to the same entire set
-        data_pca = pca.fit_transform(data)
-        test_pca = pca.fit_transform(test)
+
 
         # Now we can compare the dimensions of the training set before and after applying PCA and see if we
         # managed to reduce the number of features.
-        print("Number of descriptors before PCA: " + '{:1.0f}'.format(data.shape[1]) + '/' '{:1.0f}'.format(test.shape[1]))
-        print("Number of descriptors after PCA: " + '{:1.0f}'.format(data_pca.shape[1]) + '/' '{:1.0f}'.format(test_pca.shape[1]))
-        trainData, testData, trainLabels, testLabels = train_test_split(data_pca, labels, test_size=0.2, random_state=0)
+        trainData, testData, trainLabels, testLabels = train_test_split(data, labels, test_size=0.2, random_state=0)
 
         if self.classifieur == 1:
 
@@ -119,7 +109,8 @@ class trainModel:
             # testData = pca.transform(testData)
 
             # construct the set of hyperparameters to tune
-            hparams = {"n_neighbors": np.arange(1, 31, 1), "metric": ["euclidean", "cityblock"]}
+            k_range = np.arange(1, 31, 1)
+            hparams = {"n_neighbors": k_range, "metric": ["euclidean", "cityblock"]}
             # tune the hyperparameters via a cross-validated grid search
             print("tuning hyperparameters via grid search")
             clf = KNeighborsClassifier()
@@ -129,7 +120,7 @@ class trainModel:
             #     t_train = kt_train[i]
             #     x_test = kx_test[i]
             #     t_test = kt_test[i]
-            grid = GridSearchCV(clf, hparams, cv=3)
+            grid = GridSearchCV(clf, hparams, cv=4, scoring='accuracy')
             grid.fit(trainData, trainLabels)
             accuracy = grid.score(testData, testLabels)
             # print("len1",len(testData))
@@ -139,7 +130,19 @@ class trainModel:
             # print("log loss:", ll)
             print("KNN grid search accuracy: {:.2f}%".format(accuracy * 100))
             print("KNN grid search best parameters: {}".format(grid.best_params_))
-            test_predictions = grid.predict_proba(test_pca)
+
+            print(grid.cv_results_.keys())
+            # create a list of the mean scores only
+            # list comprehension to loop through grid.grid_scores
+            grid_mean_scores = [result for result in grid.cv_results_['mean_test_score']]
+            # print(grid_mean_scores)
+            # plot the results
+            plt.plot(k_range, grid_mean_scores)
+            plt.xlabel('Value of K for KNN')
+            plt.ylabel('Cross-Validated Accuracy')
+
+            # kaggle
+            test_predictions = grid.predict_proba(test)
             # Format DataFrame
             submission = pd.DataFrame(test_predictions, columns=classes)
             submission.insert(0, 'id', test_ids)
@@ -157,27 +160,67 @@ class trainModel:
             # print("randomized search best parameters: {}".format(grid.best_params_))
 
         if self.classifieur == 3:
-            Cs = [0.01, 0.1, 1, 10, 100]
-            gammas = [0.001, 0.01, 0.1, 1, 10, 100]
-            hparams = {'C': Cs, 'gamma': gammas}
-            print("tuning SVM(kernel=rbf) hyperparameters via grid search")
-            clf = svm.SVC(kernel='rbf', probability=True)
-            grid_search = GridSearchCV(clf, hparams, cv=4)
-            grid_search.fit(trainData, trainLabels)
-            accuracy = grid_search.score(testData, testLabels)
-            print("SVM grid search accuracy: {:.2f}%".format(accuracy * 100))
-            print("SVM grid search best parameters: {}".format(grid_search.best_params_))
-            test_predictions = grid_search.predict_proba(test)
-            # Format DataFrame
-            submission = pd.DataFrame(test_predictions, columns=classes)
-            submission.insert(0, 'id', test_ids)
-            submission.reset_index()
+            # Cs = [0.01, 0.1, 1, 10, 100]
+            # gammas = [0.001, 0.01, 0.1, 1, 10, 100]
+            # hparams = {'C': Cs, 'gamma': gammas}
+            # print("tuning SVM(kernel=rbf) hyperparameters via grid search")
+            # clf = svm.SVC(kernel='rbf', probability=True)
+            # grid_search = GridSearchCV(clf, hparams, cv=4)
+            # grid_search.fit(trainData, trainLabels)
+            # accuracy = grid_search.score(testData, testLabels)
+            # print("SVM grid search accuracy: {:.2f}%".format(accuracy * 100))
+            # print("SVM grid search best parameters: {}".format(grid_search.best_params_))
+            # test_predictions = grid_search.predict_proba(test)
+            # # Format DataFrame
+            # submission = pd.DataFrame(test_predictions, columns=classes)
+            # submission.insert(0, 'id', test_ids)
+            # submission.reset_index()
+            #
+            # # Export Submission
+            # submission.to_csv('submission.csv', index=False)
+            # submission.tail()
 
-            # Export Submission
-            submission.to_csv('submission.csv', index=False)
-            submission.tail()
+            # Set the parameters by cross-validation
+            tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-2, 1e-3, 1e-4, 1e-5],
+                                 'C': [0.001, 0.10, 0.1, 10, 25, 50, 100, 1000]},
+                                {'kernel': ['sigmoid'], 'gamma': [1e-2, 1e-3, 1e-4, 1e-5],
+                                 'C': [0.001, 0.10, 0.1, 10, 25, 50, 100, 1000]},
+                                {'kernel': ['linear'], 'C': [0.001, 0.10, 0.1, 10, 25, 50, 100, 1000]}
+                                ]
 
-        if self.classifieur == 3:
+            scores = ['precision', 'recall']
+
+            for score in scores:
+                print("# Tuning hyper-parameters for %s" % score)
+                print()
+
+                clf = GridSearchCV(SVC(C=1), tuned_parameters, cv=5,
+                                   scoring='%s_macro' % score)
+                clf.fit(trainData, trainLabels)
+
+                print("Best parameters set found on development set:")
+                print()
+                print(clf.best_params_)
+                print()
+                print("Grid scores on development set:")
+                print()
+                means = clf.cv_results_['mean_test_score']
+                stds = clf.cv_results_['std_test_score']
+                for mean, std, params in zip(means, stds, clf.cv_results_['params']):
+                    print("%0.3f (+/-%0.03f) for %r"
+                          % (mean, std * 2, params))
+                print()
+
+            #    print("Detailed classification report:")
+            #    print()
+            #    print("The model is trained on the full development set.")
+            #    print("The scores are computed on the full evaluation set.")
+            #    print()
+            #    y_true, y_pred = y_test, clf.predict(X_test)
+            #    print(classification_report(y_true, y_pred))
+            #    print()
+
+        if self.classifieur == 6:
             #penalite 
             #
             #des valeurs plus petites indiquent une régularisation plus forte pour le cas de C
@@ -225,7 +268,7 @@ class trainModel:
                 'max_features': range(
                     len(trainData[0]) - 15, len(trainData[0])), }
 
-            clf= tree.DecisionTreeClassifier()
+            clf = tree.DecisionTreeClassifier()
 
             DecisionTree_search= GridSearchCV(clf, param_grid=DecisionTree_params,cv=5)
             DecisionTree_search.fit(trainData,trainLabels)
