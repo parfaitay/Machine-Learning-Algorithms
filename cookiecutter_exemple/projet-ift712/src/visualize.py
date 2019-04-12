@@ -29,4 +29,7 @@ class Visualize:
         pl.suptitle("Histogram for each numeric input variable")
         plt.show()
 
+    def affichage(self):
+        print(self.train.)
+
 
