@@ -17,7 +17,7 @@ from sklearn.svm import SVC
 class trainModel:
     def __init__(self, classifieur=1):
         """
-        Classification algorithm
+        Classification algorithms
         ``classifier`` :   1 for classification generative
                         2 for KNN
                         3 for SVM with three kernel polynomial, sigmoidal and rbf
@@ -66,47 +66,24 @@ class trainModel:
         if self.classifieur == 1:
 
             svc_sigmoid=SVC(probability=True, kernel='sigmoid',gamma='auto')
-            #AdaBoost_params= {
-             #   'base_estimator': ('rbf', 'linear','sigmoid' ),
-              #  'n_estimators': [ 10,50, 100, ], }
-
-            # clf = AdaBoostClassifier(algorithm='SAMME', base_estimator=svc_sigmoid,n_estim)
-            # AdaBoost_search= GridSearchCV(clf,param_grid=AdaBoost_params,cv=5)
-           
-            # AdaBoost_search.fit(trainData, trainLabels)
-            # AdaBoost_search_accuracy = AdaBoost_search.score(testData, testLabels)
-            # print("gridlda search accuracy: {:.2f}%".format(AdaBoost_search_accuracy * 100))
-            # print("gridlda search best parameters: {}".format(AdaBoost_search.best_params_))
-
-            param_dist = {
+            AdaBoost_params = {
                     'n_estimators': [50, 100],
                     'learning_rate' : [0.01,0.05,0.1,0.3,1],
-                    #'base_estimator' : {'linear', 'rbf', 'exponential'}
-                    
-                            }
+                             }
             
-            pre_gs_inst = GridSearchCV(AdaBoostClassifier(algorithm='SAMME', base_estimator=svc_sigmoid),
-                     param_grid = param_dist,
-                         cv=3)
-                         
-          
-            pre_gs_inst.fit(trainData, trainLabels)
-                #Voir les meilleurs paramètres:
+            AdaBoost_search = GridSearchCV(AdaBoostClassifier(algorithm='SAMME', base_estimator=svc_sigmoid),
+                     param_grid = AdaBoost_params, cv=3)
+                        
+            AdaBoost_search.fit(trainData, trainLabels)
+                
 
-            pre_gs_inst_accuracy = pre_gs_inst.score(testData, testLabels)
-            print("perceptron  search accuracy: {:.2f}%".format(pre_gs_inst_accuracy * 100))
-            print("randomized search best parameters: {}".format(pre_gs_inst.best_params_))
-            #print("valeur meilleure"+pre_gs_inst.best_params_)
-
-            
-            
+            AdaBoost_accuracy = AdaBoost_search.score(testData, testLabels)
+            print("AdaBoost_search   accuracy: {:.2f}%".format(AdaBoost_accuracy * 100))
+            print("AdaBoost_search search best parameters: {}".format(AdaBoost_search.best_params_))
+        
+                
         if self.classifieur == 2:
-            #apply PCA
-            # # Make an instance of the Model
-            # pca = PCA(.90)
-            # pca.fit(trainData)
-            # trainData = pca.transform(trainData)
-            # testData = pca.transform(testData)
+      
 
             # construct the set of hyperparameters to tune
             k_range = np.arange(1, 31, 1)
@@ -303,25 +280,3 @@ class trainModel:
             print("perceptron  search accuracy: {:.2f}%".format(RandomForest_accuracy * 100))
             print("perceptron logistic search best parameters: {}".format(RandomForest_search.best_params_))
 
-
-         
-            
-
-      
-
-
-
-    def prediction(self, x):
-        """
-        """
-        return 0
-
-    def erreur(self, t, prediction):
-        """
-        Retourne la différence au carré entre
-        la cible ``t`` et la prédiction ``prediction``.
-        on calcule lerreur de la prediction
-        """
- 
-        err = (t - prediction) ** 2
-        return err
