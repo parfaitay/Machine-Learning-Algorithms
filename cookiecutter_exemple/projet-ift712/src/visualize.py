@@ -17,7 +17,7 @@ class Visualize:
 
     def print_data_perClass(self):
         """
-        to-do
+        Plot the number of data per class
         """
         width = 12
         height = 20
@@ -27,7 +27,7 @@ class Visualize:
 
     def print_histogram(self):
         """
-        to-do
+        Plot the histogram of the data
         """
         import pylab as pl
         self.train.drop('species', axis=1).drop('id', axis=1).hist(bins=30, figsize=(30, 40))
@@ -35,6 +35,11 @@ class Visualize:
         plt.show()
 
     def scatter_matrix(self, data):
+        """
+        :param data:
+        Plot the scatter matrix of data
+        :return:
+        """
         feature_names = ['shape1', 'shape2', 'shape3', 'shape4', 'shape5', 'shape6', 'shape7', 'shape8', 'shape9']
         X = data[feature_names]
         y = data['species']
@@ -43,7 +48,12 @@ class Visualize:
         plt.suptitle('Scatter-matrix for each input variable')
 
     def show_correlation(self, traindf):
-
+        """
+        :param traindf:
+        Compute the pearson correlation of traindf and plot the results
+        source: https://www.kaggle.com/asparago/3-basic-classifiers-and-features-correlation
+        :return:
+        """
         md = m.MakeDataset()
         # First we find the sets of margin, shape and texture columns
         margin_cols = [col for col in traindf.columns if 'margin' in col]

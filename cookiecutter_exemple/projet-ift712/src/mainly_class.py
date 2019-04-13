@@ -12,28 +12,29 @@ import visualize as vz
 # python mainly_class.py 1 1 0 0
 #
 #################################################
+from sklearn.model_selection import train_test_split
 
 
 def main():
 
-    if len(sys.argv) > 7:
-        usage = "\n Usage: python mainly_class.py classifier_type normalize_data _apply_pca_data visualize \
-        \n\n\t classifier_type : 1 => Classification generative\
-        \n\t classifier_type : 2 => Perceptron + SDG \n\t method : 3 => Perceptron + SDG [sklearn]\
-        \n\t nb_train, nb_test : nombre de donnees d'entrainement et de test\
-        \n\t lambda >=0\
-        \n\t bruit : multiplicateur de la matrice de variance-covariance (entre 0.1 et 50)\
-        \n\t don_ab : production ou non de données aberrantes (0 ou 1) \
-        \n\n\t ex : python classifieur_lineaire.py 1 280 280 0.001 1 1"
+    if len(sys.argv) < 5:
+        usage = "\n Usage: python mainly_class.py classifier_type normalize_data apply_pca_data visualize run_all\
+        \n\n\t classifier_type : 1 => Adaboost\
+        \n\t classifier_type : 2 => KNN \n\t classifier_type : 3 => SVM \n\t classifier_type : 4 => logistic regression\
+        \n\t classifier_type : 5 => Perceptron\n\t classifier_type : 6 => RandomForest\
+        \n\t normalize_data: Normalize the training dataset\
+        \n\t apply_pca_data: Apply pca on the training dataset\
+        \n\t visualize: Visualize some data of the dataset\
+        \n\t run_all: Run all models\
+        \n\n\t ex : python mainly_class.py 0 0 0 0 1"
         print(usage)
         return
 
     classifier_type = int(sys.argv[1])
     normalize = int(sys.argv[2])
     pca = int(sys.argv[3])
-    vis = float(sys.argv[4])
-    #bruit = float(sys.argv[5])
-    #donnees_aberrantes = bool(int(sys.argv[6]))
+    vis = int(sys.argv[4])
+    run_all = int(sys.argv[5])
 
     print("Making Dataset...")
     generateur_donnees = md.MakeDataset()
@@ -52,19 +53,29 @@ def main():
         visio = vz.Visualize()
         visio.show_correlation(data)
 
+    # Run for each classifier
     if classifier_type != 0:
         print(" Training with the specified classifier...")
         train_model = tm.trainModel(classifieur=classifier_type)
-        train_model.entrainement(data, labels, test, test_ids, classes)
-    
-    # err_train = 50
-    # err_test = 50
+        trainData, testData, trainLabels, testLabels = train_test_split(data, labels, test_size=0.2, random_state=0)
+        train_model.entrainement(trainData, trainLabels, testData, testLabels, test, classes, test_ids)
 
-    # print('Erreur train = ', err_train, '%')
-    # print('Erreur test = ', err_test, '%')
-    #analyse_erreur(err_train, err_test)
-    
-    
+    # Run for all classifiers
+    if run_all == 1:
+        print(" Training with all classifiers...")
+        trainData, testData, trainLabels, testLabels = train_test_split(data, labels, test_size=0.2, random_state=0)
+        train_model = tm.trainModel(classifieur=1)
+        train_model.entrainement(trainData, trainLabels, testData, testLabels)
+        train_model = tm.trainModel(classifieur=2)
+        train_model.entrainement(trainData, trainLabels, testData, testLabels)
+        train_model = tm.trainModel(classifieur=3)
+        train_model.entrainement(trainData, trainLabels, testData, testLabels)
+        train_model = tm.trainModel(classifieur=4)
+        train_model.entrainement(trainData, trainLabels, testData, testLabels)
+        train_model = tm.trainModel(classifieur=5)
+        train_model.entrainement(trainData, trainLabels, testData, testLabels)
+        train_model = tm.trainModel(classifieur=6)
+        train_model.entrainement(trainData, trainLabels, testData, testLabels)
 
 
 if __name__ == "__main__":
